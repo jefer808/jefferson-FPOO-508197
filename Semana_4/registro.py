@@ -21,27 +21,34 @@ class TaskRegistry:
         self.task_list.append(task)
 
     def show_tasks(self):
-        print("\nList of Tasks:")
-        for task in self.task_list:
-            print(task)
+        print("\n--- Lista de Tareas Registradas ---")
+        if not self.task_list:
+            print("No se han registrado tareas.")
+        else:
+            for task in self.task_list:
+                print(f"{task}\n{'-'*40}")
 
 
 def main():
     registry = TaskRegistry()
-    number_of_tasks = 5  
 
-    for i in range(number_of_tasks):
-        print(f" Registra la tarea {i + 1} of {number_of_tasks}:")
+    while True:
+        print("Registra una nueva tarea:")
         task_id = input("ID de la tarea: ")
-        title = input("Titulo de la tarea: ") 
-        qualification = float(input(" Calificacion (0 a 5): "))
-        category = int(input("Category (1: Quiz, 2: Partial, 3: Job): "))
+        title = input("Título de la tarea: ")
+        qualification = float(input("Calificación (0 a 5): "))
+        category = int(input("Categoría (1: Quiz, 2: Partial, 3: Job): "))
 
         task = Task(task_id, title, qualification, category)
         registry.add_task(task)
 
+        continue_input = input("¿Desea registrar otra tarea? (sí/no): ").strip().lower()
+        if continue_input != 'sí':
+            break
+
     registry.show_tasks()
-    print(f" Un total de tareas {number_of_tasks} Se han registrado las tareas")
+    print(f"Se han registrado {len(registry.task_list)} tareas.")
+
 
 if __name__ == "__main__":
     main()
