@@ -2,7 +2,7 @@ from Models.Responsable import Responsable  # Importa la clase del responsable m
 from Models.Proyecto import Proyecto  # Importa la clase Proyecto desde el módulo Models.Proyecto
 
 
-# Clase Organización
+
 # Clase Organización
 class Organizacion:
     def __init__(self, nombre):
@@ -24,7 +24,9 @@ class Organizacion:
         return sum(p.emisiones for p in self.proyectos)
 
     def ordenar_proyectos_por_impacto(self):
-        self.proyectos.sort(key=lambda p: p.emisiones, reverse=True)
+    # Ordenar por emisiones iniciales o finales si están disponibles
+     self.proyectos.sort(key=lambda p: p.emisiones_finales if p.emisiones_finales is not None else p.emisiones_iniciales, reverse=True)
+
 
     def mostrar_proyectos_completados(self):
         return [p for p in self.proyectos if p.estado == "Completado"]
@@ -45,8 +47,18 @@ class Organizacion:
                 return f"Ambos proyectos tienen el mismo impacto con {proyecto1.emisiones} toneladas reducidas."
         else:
             return "Uno o ambos proyectos no se encontraron."
+    def actualizar_emisiones_proyecto(self, proyecto_id):
+        proyecto = next((p for p in self.proyectos if p.id == proyecto_id), None)
+        if proyecto:
+            emisiones_finales = float(input(f"Introduce las emisiones finales de {proyecto.nombre} (toneladas): "))
+            proyecto.actualizar_emisiones(emisiones_finales)
+            diferencia = proyecto.calcular_diferencia_emisiones()
+            print(f"Diferencia de impacto para el proyecto {proyecto.nombre}: {diferencia} toneladas reducidas.")
+        else:
+            print(f"Proyecto con ID {proyecto_id} no encontrado.")      
 
 
+# Menú Interactivo
 # Menú Interactivo
 def menu():
     organizacion = Organizacion("GreenTech Global")
@@ -56,7 +68,7 @@ def menu():
         print("1. Agregar Proyecto")
         print("2. Mostrar Información de Proyectos")
         print("3. Actualizar Estado de un Proyecto")
-        print("4. Calcular Total de Emisiones Reducidas")
+        print("4. Actualizar Emisiones y Calcular Diferencia de Impacto")
         print("5. Ordenar Proyectos por Impacto")
         print("6. Mostrar Proyectos Completados")
         print("7. Eliminar Proyecto")
@@ -80,11 +92,11 @@ def menu():
             telefono = input("Teléfono: ")
             responsable = Responsable(dni, nombre_responsable, apellido, email, telefono)
             
-            emisiones = float(input("Emisiones reducidas (toneladas): "))
+            emisiones_iniciales = float(input("Emisiones iniciales reducidas (toneladas): "))
             energia_generada = float(input("Energía generada (MWh): "))
             estado = input("Estado (Activo/Completado): ")
             
-            proyecto = Proyecto(id, nombre, tipo, ubicacion, responsable, emisiones, energia_generada, estado)
+            proyecto = Proyecto(id, nombre, tipo, ubicacion, responsable, emisiones_iniciales, energia_generada, estado)
             organizacion.agregar_proyecto(proyecto)
             print("Proyecto agregado exitosamente.")
         
@@ -109,8 +121,8 @@ def menu():
                 print("Proyecto no encontrado.")
         
         elif opcion == "4":
-            total_emisiones = organizacion.calcular_total_emisiones()
-            print(f"Total de emisiones reducidas: {total_emisiones} toneladas.")
+            proyecto_id = input("Introduce el ID del proyecto para actualizar emisiones: ")
+            organizacion.actualizar_emisiones_proyecto(proyecto_id)
         
         elif opcion == "5":
             organizacion.ordenar_proyectos_por_impacto()
